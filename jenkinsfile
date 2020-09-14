@@ -1,0 +1,12 @@
+pipeline {
+  agent any {
+    stages {
+    step("init") {
+      echo "init stage"
+      }
+    step("build") {
+      echo "build stage"
+      }    
+    }  
+  }
+}
