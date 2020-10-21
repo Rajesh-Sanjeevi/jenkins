@@ -8,7 +8,7 @@ pipeline {
 				}
 			}
 		steps {
-				sh './jenkins/build.sh'
+				sh 'mvn build'
 			}
 		post {
 			success {
@@ -27,7 +27,7 @@ pipeline {
 					}
 					steps {
 						unstash 'Java'
-						sh './jenkins/test.sh'
+						sh 'mvn test'
 					}
 					post {
 						always {
@@ -43,7 +43,7 @@ pipeline {
 					}
 					steps {
 						unstash 'Java'
-						sh './jenkins/test.sh'
+						sh 'echo frontend'
 					}
 					post {
 						always {
@@ -59,7 +59,7 @@ pipeline {
 					}
 					steps {
 						unstash 'Java'
-						sh './jenkins/test.sh'
+						sh 'echo performancetest'
 					}
 				}
 				stage('Static Java') {
@@ -70,7 +70,7 @@ pipeline {
 					}
 					steps {
 						unstash 'Java'
-						sh './jenkins/test.sh'
+						sh 'echo staticjava'
 					}
 				}
 			}
@@ -96,7 +96,7 @@ pipeline {
       }
       steps {
         unstash 'Java'
-        sh "./jenkins/deploy.sh ${params.DEPLOY_TO}"
+        sh "mvn install"
       }
     }
   }
