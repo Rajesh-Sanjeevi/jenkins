@@ -80,7 +80,7 @@ pipeline {
 		}	
     stage('Confirm Deploy') {
       agent any
-      when {
+      when anyOf{
         branch 'master'
       }
       steps {
