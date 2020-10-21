@@ -1,12 +1,106 @@
 pipeline {
-  agent any {
-    stages {
-    step("init") {
-      echo "init stage"
+	agent none
+	stages {
+		stage('Build') {
+			agent {
+				node {
+					label 'java'
+				}
+			}
+		steps {
+				sh './jenkins/build.sh'
+			}
+		post {
+			success {
+              stash(name: 'Java', includes: 'target/**')
+              archiveArtifacts 'target/*.jar'
+            }
+          }
+        }
+		stage('Fluffy Test') {
+			parallel {
+				stage('Backend Java') {
+					agent {
+						node {
+							label 'java'
+						}
+					}
+					steps {
+						unstash 'Java'
+						sh './jenkins/test.sh'
+					}
+					post {
+						always {
+							junit 'target/surefire-reports/**/TEST*.xml'
+						}
+					}
+				}
+				stage('Frontend') {
+					agent {
+						node {
+							label 'java'
+						}
+					}
+					steps {
+						unstash 'Java'
+						sh './jenkins/test.sh'
+					}
+					post {
+						always {
+							junit 'target/test-results/**/TEST*.xml'
+						}
+					}
+				}
+				stage('Performance Java') {
+					agent {
+						node {
+							label 'java'
+						}
+					}
+					steps {
+						unstash 'Java'
+						sh './jenkins/test.sh'
+					}
+				}
+				stage('Static Java') {
+					agent {
+						node {
+							label 'java'
+						}
+					}
+					steps {
+						unstash 'Java'
+						sh './jenkins/test.sh'
+					}
+				}
+			}
+		}	
+    stage('Confirm Deploy') {
+      when {
+        branch 'master'
       }
-    step("build") {
-      echo "build stage"
-      }    
-    }  
+      steps {
+        timeout(time: 3, unit: 'MINUTES' ) {
+          input(message: "Okay to Deploy to Staging?", ok: "Let's Do it!")
+        }
+      }
+   }
+    stage('Fluffy Deploy') {
+      when {
+        branch 'master'
+      }
+      agent {
+        node {
+          label 'java'
+        }
+      }
+      steps {
+        unstash 'Java'
+        sh "./jenkins/deploy.sh ${params.DEPLOY_TO}"
+      }
+    }
+  }
+  parameters {
+    string(name: 'DEPLOY_TO', defaultValue: 'dev', description: '')
   }
 }
