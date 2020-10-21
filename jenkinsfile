@@ -83,11 +83,11 @@ pipeline {
         branch 'master'
       }
       steps {
-        timeout(time: 3, unit: 'MINUTES' ) {
-          input(message: "Okay to Deploy to Staging?", ok: "Let's Do it!")
+        timeout(time: 3, unit: 'MINUTES' )
+        input(message: "Okay to Deploy to Staging?", ok: "Let's Do it!")
         }
       }
-   }
+   
     stage('Fluffy Deploy') {
       when {
         branch 'master'
